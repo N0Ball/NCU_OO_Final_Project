@@ -32,7 +32,7 @@ public class MainFrame extends JFrame{
         
         this.add(new Sidebar(this.presenter), BorderLayout.WEST);
         this.add(new Canvas(), BorderLayout.CENTER);
-        this.setJMenuBar(new MenuBar());
+        this.setJMenuBar(new MenuBar(this.presenter));
         
         this.setVisible(true);
     }
