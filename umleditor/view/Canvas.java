@@ -3,10 +3,10 @@ package umleditor.view;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.JPanel;
+import javax.swing.event.MouseInputAdapter;
 
 import umleditor.Presenter;
 
@@ -23,6 +23,7 @@ public class Canvas extends JPanel {
         this.setOpaque(false);
         this.setBackground(Color.WHITE);
         this.addMouseListener(new MouseListener());
+        this.addMouseMotionListener(new MouseListener());
 
     }
 
@@ -38,11 +39,10 @@ public class Canvas extends JPanel {
 
     }
 
-    private class MouseListener extends MouseAdapter{
+    private class MouseListener extends MouseInputAdapter{
 
         public void mousePressed(MouseEvent e){
             presenter.onPressed(e.getPoint());
-            repaint();
         }
 
         public void mouseDragged(MouseEvent e){

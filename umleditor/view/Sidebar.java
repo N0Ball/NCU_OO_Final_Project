@@ -72,7 +72,6 @@ public class Sidebar extends JPanel {
 
     public void onPressed(Button btn) {
         this.presenter.onPressed(btn.id);
-        this.repaint();
     }
     
 }

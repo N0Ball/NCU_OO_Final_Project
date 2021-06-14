@@ -13,19 +13,27 @@ public class UMLObject {
 
     private static final ArrayList<Base> objects = new ArrayList<>();
     
-    public void createObject(int ObjectId){
-        objects.add(getObject(ObjectId));
+    public UMLObject.Base createObject(int ObjectId){
+        UMLObject.Base new_object = getObject(ObjectId);
+        objects.add(new_object);
+        return new_object;
+    }
+
+    public void deleteObject(Object target){
+        objects.remove(target);
     }
 
     public ArrayList<Base> getAllObjects() { return objects; }
 
-    public Base getObject(int ObjectId){
+    private Base getObject(int ObjectId){
 
         switch (ObjectId) {
             case Statics.UMLOBJECT.CLASS:
                 return new Class();
             case Statics.UMLOBJECT.USE_CASE:
                 return new UseCase();
+            case Statics.UMLOBJECT.SELECT_SQUARE:
+                return new SelectSquare();
             // case Statics.UMLOBJECT.COMPOSITION_LINE:
             //     return new Class();
             // case Statics.UMLOBJECT.GENERALIZATION_LINE:
@@ -38,37 +46,81 @@ public class UMLObject {
         }
     }
 
+    public Base getObject(Object obj){
+        for (UMLObject.Base object: objects){
+            if (object == obj){
+                return object;
+            }
+        }
+
+        System.out.println("Warning:\t Get an mull object from UMLObject.getObject(Object obj).");
+        return null;
+    }
+
     abstract public class Base{
 
         protected Point location = new Point();
+        protected int height;
+        protected int width;
         protected int id;
         protected int type;
         protected String name;
+        protected boolean selected = false;
 
         public int getType() { return type; }
+        public Point getSize() { return new Point(width, height); }
         public String getName() { return name; }
         public Point getLocation(){ return location; }
         public IDraw getDrawMethod() {
             return (Graphics2D g) -> draw(g);
         }
+        public boolean getSelected() { return selected; }
         
         public void setLocation(int x,int y){
             location.x = x;
             location.y = y;
         }
+        public void setSize(int x, int y){
+            width = x;
+            height = y;
+        }
+        public void Move(int dx, int dy){
+            location.x += dx;
+            location.y += dy;
+        }
+
+        public void select() { selected = true; }
+        public void deselect() { selected = false; }
 
         abstract public void draw(Graphics2D g);
     }
 
     abstract public class Shape extends Base{
 
-        protected int height = 25;
-        protected int width = 100;
-        protected int type = Statics.UMLOBJECT_TYPE.SHAPE;
+        Shape(){
+            this.height = 25;
+            this.width = 100;
+            this.type = Statics.UMLOBJECT_TYPE.SHAPE;
+        }
+
         protected final int TEXT_PADDING = 7;
+        protected final int PORT_SIZE = 10;
 
         public void setName(String name) {
             this.name = name;
+        }
+
+        @Override
+        public void draw(Graphics2D g){
+
+            g.setColor(Color.BLACK);
+
+            if (selected){
+                g.fillRect(this.location.x + this.width / 2, this.location.y - PORT_SIZE, PORT_SIZE, PORT_SIZE);
+                g.fillRect(this.location.x - PORT_SIZE, this.location.y + this.height / 2 - PORT_SIZE / 2, PORT_SIZE, PORT_SIZE);
+                g.fillRect(this.location.x + this.width, this.location.y + this.height / 2 - PORT_SIZE / 2, PORT_SIZE, PORT_SIZE);
+                g.fillRect(this.location.x + this.width / 2, this.location.y + this.height, PORT_SIZE, PORT_SIZE);
+            }
         }
 
     }
@@ -88,8 +140,9 @@ public class UMLObject {
 
         @Override
         public void draw(Graphics2D g) {
+
+            super.draw(g);
             
-            g.setColor(Color.BLACK);
             g.drawRect(this.location.x, this.location.y, this.width, this.height);
             g.drawLine(this.location.x, this.location.y + TITLE_LENGTH*this.height/TOTLE_LENGTH, this.location.x + this.width, this.location.y + TITLE_LENGTH*this.height/TOTLE_LENGTH);
             g.drawLine(this.location.x, this.location.y + (TITLE_LENGTH + FIELD_LENGTH)*this.height/TOTLE_LENGTH, this.location.x + this.width, this.location.y + (TITLE_LENGTH + FIELD_LENGTH)*this.height/TOTLE_LENGTH);
@@ -110,7 +163,8 @@ public class UMLObject {
         @Override
         public void draw(Graphics2D g) {
             
-            g.setColor(Color.BLACK);
+            super.draw(g);
+
             g.drawArc(this.location.x, this.location.y, this.width, this.height, 0, 360);
 
             g.setFont(new Font("default", Font.BOLD, 16));
@@ -118,10 +172,37 @@ public class UMLObject {
         }
     }
 
+    private class SelectSquare extends Shape{
+        public SelectSquare(){
+            this.id = Statics.UMLOBJECT.SELECT_SQUARE;
+            this.name = "Select Square";
+            this.width = 0;
+            this.height = 0;
+        }
+
+        @Override
+        public void draw(Graphics2D g) {
+            
+            g.setColor(new Color(200, 200, 200, 30));
+            g.fillRect(this.location.x, this.location.y, this.width, this.height);
+            g.setColor(Color.BLACK);
+            g.drawRect(this.location.x, this.location.y, this.width, this.height);
+
+        }
+    }
+
     abstract public class Line extends Base{
+
+        public Line(){
+            this.height = 0;
+            this.width = 0;
+            this.type = Statics.UMLOBJECT_TYPE.LINE;
+            this.name = "Line";
+        }
+
         protected Shape startShape;
+        protected int startPort;
         protected Shape endShape;
-        protected int type = Statics.UMLOBJECT_TYPE.LINE;
-        protected String name = "Line";
+        protected int endPort;
     }
 }

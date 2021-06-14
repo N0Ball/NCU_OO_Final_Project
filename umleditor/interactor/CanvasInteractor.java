@@ -11,25 +11,56 @@ public class CanvasInteractor {
 
     private Mode currentMode;
     private UMLObject UMLOBJECT = new UMLObject();
-    private static final ArrayList<UMLObject.Base> objects = new ArrayList<>();
     
     public CanvasInteractor(){}
 
-    private UMLObject.Base getObject(int ObjectId){
+    public UMLObject.Base getObject(int ObjectId){
         return UMLOBJECT.getObject(ObjectId);
     }
 
+    public UMLObject.Base getObject(Object target){
+        return UMLOBJECT.getObject(target);
+    }
+
     public ArrayList<UMLObject.Base> getAllObjects(){
-        return objects;
+        return UMLOBJECT.getAllObjects();
+    }
+
+    public UMLObject.Base getCollideObject(Point pt){
+
+        ArrayList<UMLObject.Base> objects = UMLOBJECT.getAllObjects();
+        
+        for (int i = objects.size() - 1 ; i >= 0; i--){
+            if(isCollide(objects.get(i), pt)){
+                return objects.get(i);
+            }
+        }
+        return null;
+    }
+
+    public ArrayList<UMLObject.Base> getCollideArea(Point topCorner, Point bottomCorner){
+        ArrayList<UMLObject.Base> targets = new ArrayList<>();
+
+        for (UMLObject.Base object: getAllObjects()){
+            if (object.getLocation().x > topCorner.x && object.getLocation().x < bottomCorner.x){
+                if (object.getLocation().y > topCorner.y && object.getLocation().y < bottomCorner.y){
+                    targets.add(object);
+                }
+            }
+        }
+
+        return targets;
     }
 
     public void setMode(int btnId){
 
         switch (btnId) {
 
-            // case Statics.BUTTON.SELECT:
-            //     setMode(Statics.MODE.SELECT);
-            //     break;
+            case Statics.BUTTON.SELECT:
+                System.out.println("Log:\t Set Mode to <SELECT>");
+                currentMode = new SelectMode(this);
+                currentMode.setTarget(Statics.UMLOBJECT.SELECT_SQUARE);
+                break;
 
             case Statics.BUTTON.UML_CLASS:
                 System.out.println("Log:\t Set Mode to <OBJECT>, Target to <CLASS>");
@@ -59,16 +90,35 @@ public class CanvasInteractor {
             //     break;
 
             default:
-                System.out.println("Warning: Selected a unsupported Mode at Canvasinteractor.setMode !");
+                System.out.println("Warning:\t Selected a unsupported Mode at Canvasinteractor.setMode !");
                 break;
         }
 
     }
 
+    public void select(Object target){
+        for (UMLObject.Base object: getAllObjects()){
+            if (object == target){
+                object.select();
+            }
+        }
+    }
+
+    public void deselectAll(){
+        getAllObjects().forEach(e -> {e.deselect();});
+    }
+
     public UMLObject.Base createObject(){
-        UMLObject.Base object = getObject(currentMode.getTarget());
-        objects.add(object);
+        UMLObject.Base object = UMLOBJECT.createObject(currentMode.getTarget());
         return object;
+    }
+
+    public void deleteObject(Object target){
+        try {
+            UMLOBJECT.deleteObject(target);
+        } catch (Exception e) {
+            System.out.println("Error:\t at CanvasInteractor.deleteObject " + e);
+        }
     }
 
     public void onPressed(Point pt){
@@ -83,4 +133,25 @@ public class CanvasInteractor {
         currentMode.onReleased(pt);
     }
     
+    private boolean isCollide(UMLObject.Base target, Point pt){
+
+        if (target.getType() == Statics.UMLOBJECT_TYPE.LINE){
+            return false;
+        }
+
+        int X = target.getLocation().x;
+        int Y = target.getLocation().y;
+        int width = target.getSize().x;
+        int height = target.getSize().y;
+
+        if (pt.x > X && pt.x < X + width){
+            if (pt.y > Y && pt.y < Y + height){
+                return true;
+            }
+        }
+
+        return false;
+        
+    }
+
 }

@@ -5,16 +5,25 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 import umleditor.interactor.*;
-import umleditor.utils.Pair;
 import umleditor.utils.IDraw;
+import umleditor.utils.IObserver;
 
 public class Presenter {
 
     private static final SidebarInteractor SIDEBAR_INTERACTOR = new SidebarInteractor();
     private static final MenuBarInteractor MENUBAR_INTERACTOR = new MenuBarInteractor();
     private static final CanvasInteractor CANVAS_INTERACTOR = new CanvasInteractor();
+    private IObserver observer;
 
     public Presenter(){}
+
+    public void setObserver(IObserver observer){
+        this.observer = observer;
+    }
+
+    public void notifyObserver(){
+        this.observer.update();
+    }
 
     public class Base{
         public Base(){}
@@ -43,7 +52,10 @@ public class Presenter {
 
             SIDEBAR_INTERACTOR.pressedBtn(btnID);
 
+            CANVAS_INTERACTOR.deselectAll();
             CANVAS_INTERACTOR.setMode(btnID);
+
+            notifyObserver();
             
         }
 
@@ -72,10 +84,13 @@ public class Presenter {
         }
 
         public void onPressed(int MenuItemId){
+
             System.out.println(
                 MENUBAR_INTERACTOR.getMenuItem(MenuItemId).getName() + 
                 " is clicked!"
             );
+
+            notifyObserver();
         }
 
     }
@@ -84,14 +99,17 @@ public class Presenter {
 
         public void onPressed(Point pt){
             CANVAS_INTERACTOR.onPressed(pt);
+            notifyObserver();
         }
 
         public void onDragged(Point pt){
             CANVAS_INTERACTOR.onDragged(pt);
+            notifyObserver();
         }
 
         public void onReleased(Point pt){
             CANVAS_INTERACTOR.onReleased(pt);
+            notifyObserver();
         }
 
         public ArrayList<IDraw> getObjects(){

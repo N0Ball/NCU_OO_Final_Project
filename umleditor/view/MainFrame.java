@@ -6,11 +6,12 @@ import java.awt.BorderLayout;
 import javax.swing.JFrame;
 
 import umleditor.Presenter;
+import umleditor.utils.IObserver;
 
 /**
  * Main Frame of the program
  */
-public class MainFrame extends JFrame{
+public class MainFrame extends JFrame implements IObserver{
 
     private final static int WIDTH = 1000;
     private final static int HEIGHT = 600;
@@ -20,6 +21,7 @@ public class MainFrame extends JFrame{
     public MainFrame(Presenter presenter){
 
         this.presenter = presenter;
+        presenter.setObserver(this);
 
         // Inital Frame
 
@@ -35,5 +37,9 @@ public class MainFrame extends JFrame{
         this.setJMenuBar(new MenuBar(this.presenter));
         
         this.setVisible(true);
+    }
+
+    public void update(){
+        repaint();
     }
 }

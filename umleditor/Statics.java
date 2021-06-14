@@ -26,6 +26,7 @@ public class Statics {
         public static final int ASSOCIATION_LINE = 2;
         public static final int GENERALIZATION_LINE = 3;
         public static final int COMPOSITION_LINE = 4;
+        public static final int SELECT_SQUARE = 5;
     }
 
     public static class MODE{

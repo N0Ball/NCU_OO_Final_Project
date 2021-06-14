@@ -2,7 +2,6 @@ package umleditor.interactor.modes;
 
 import java.awt.Point;
 
-import umleditor.entity.UMLObject;
 import umleditor.interactor.CanvasInteractor;
 
 public abstract class Mode {
