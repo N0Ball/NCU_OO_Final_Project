@@ -38,12 +38,33 @@ public class CanvasInteractor {
         return null;
     }
 
+    public int getCollidePort(UMLObject.Base target, Point pt){
+
+        Point normPt = new Point(
+            pt.x - target.getLocation().x - target.getSize().x/2, 
+            pt.y - target.getLocation().y - target.getSize().y/2
+        );
+
+        if( normPt.x + normPt.y > 0){
+            if ( normPt.x - normPt.y > 0){
+                return Statics.PORT.RIGHT;
+            }
+            return Statics.PORT.BOTTOM;
+        }else{
+            if ( normPt.x - normPt.y > 0){
+                return Statics.PORT.TOP;
+            }
+            return Statics.PORT.LEFT;
+        }
+
+    }
+
     public ArrayList<UMLObject.Base> getCollideArea(Point topCorner, Point bottomCorner){
         ArrayList<UMLObject.Base> targets = new ArrayList<>();
 
         for (UMLObject.Base object: getAllObjects()){
-            if (object.getLocation().x > topCorner.x && object.getLocation().x < bottomCorner.x){
-                if (object.getLocation().y > topCorner.y && object.getLocation().y < bottomCorner.y){
+            if (object.getLocation().x > topCorner.x && object.getLocation().x + object.getSize().x < bottomCorner.x){
+                if (object.getLocation().y > topCorner.y && object.getLocation().y + object.getSize().y < bottomCorner.y){
                     targets.add(object);
                 }
             }
@@ -74,20 +95,23 @@ public class CanvasInteractor {
                 currentMode.setTarget(Statics.UMLOBJECT.USE_CASE);
                 break;
 
-            // case Statics.BUTTON.ASSOCIATION_LINE:
-            //     setMode(Statics.MODE.LINE);
-            //     currentMode.setTarget(Statics.UMLOBJECT.ASSOCIATION_LINE);
-            //     break;
-        
-            // case Statics.BUTTON.COMPOSITION_LINE:
-            //     setMode(Statics.MODE.LINE);
-            //     currentMode.setTarget(Statics.UMLOBJECT.COMPOSITION_LINE);
-            //     break;
-
-            // case Statics.BUTTON.GENERALIZATION_LINE:
-            //     setMode(Statics.MODE.LINE);
-            //     currentMode.setTarget(Statics.UMLOBJECT.GENERALIZATION_LINE);
-            //     break;
+            case Statics.BUTTON.ASSOCIATION_LINE:
+                System.out.println("Log:\t Set Mode to <LINE>, Target to <ASSOCIATION_LINE>");
+                currentMode = new LineMode(this);
+                currentMode.setTarget(Statics.UMLOBJECT.ASSOCIATION_LINE);
+                break;
+                
+            case Statics.BUTTON.GENERALIZATION_LINE:
+                System.out.println("Log:\t Set Mode to <LINE>, Target to <GENERALIZATION_LINE>");
+                currentMode = new LineMode(this);
+                currentMode.setTarget(Statics.UMLOBJECT.GENERALIZATION_LINE);
+                break;
+                
+            case Statics.BUTTON.COMPOSITION_LINE:
+                System.out.println("Log:\t Set Mode to <LINE>, Target to <COMPOSITION_LINE>");
+                currentMode = new LineMode(this);
+                currentMode.setTarget(Statics.UMLOBJECT.COMPOSITION_LINE);
+                break;
 
             default:
                 System.out.println("Warning:\t Selected a unsupported Mode at Canvasinteractor.setMode !");

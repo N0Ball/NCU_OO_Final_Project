@@ -34,12 +34,12 @@ public class UMLObject {
                 return new UseCase();
             case Statics.UMLOBJECT.SELECT_SQUARE:
                 return new SelectSquare();
-            // case Statics.UMLOBJECT.COMPOSITION_LINE:
-            //     return new Class();
-            // case Statics.UMLOBJECT.GENERALIZATION_LINE:
-            //     return new Class();
-            // case Statics.UMLOBJECT.COMPOSITION_LINE:
-            //     return new Class();
+            case Statics.UMLOBJECT.ASSOCIATION_LINE:
+                return new AssociationLine();
+            case Statics.UMLOBJECT.GENERALIZATION_LINE:
+                return new GeneralizationLine();
+            case Statics.UMLOBJECT.COMPOSITION_LINE:
+                return new CompositionLine();
             default:
                 System.out.println("Warning: get null return at UMLObject.getObject");
                 return null;
@@ -66,11 +66,14 @@ public class UMLObject {
         protected int type;
         protected String name;
         protected boolean selected = false;
+        protected final ArrayList<UMLObject.Base> PORTS = new ArrayList<>();
+        protected final int PORT_SIZE = 10;
 
         public int getType() { return type; }
         public Point getSize() { return new Point(width, height); }
         public String getName() { return name; }
         public Point getLocation(){ return location; }
+        public Base getPort(int portId) { return PORTS.get(portId); }
         public IDraw getDrawMethod() {
             return (Graphics2D g) -> draw(g);
         }
@@ -91,6 +94,13 @@ public class UMLObject {
 
         public void select() { selected = true; }
         public void deselect() { selected = false; }
+        
+        protected void addPorts(){
+            PORTS.add(new Port(this, Statics.PORT.TOP));
+            PORTS.add(new Port(this, Statics.PORT.LEFT));
+            PORTS.add(new Port(this, Statics.PORT.RIGHT));
+            PORTS.add(new Port(this, Statics.PORT.BOTTOM));
+        }
 
         abstract public void draw(Graphics2D g);
     }
@@ -104,7 +114,6 @@ public class UMLObject {
         }
 
         protected final int TEXT_PADDING = 7;
-        protected final int PORT_SIZE = 10;
 
         public void setName(String name) {
             this.name = name;
@@ -115,12 +124,9 @@ public class UMLObject {
 
             g.setColor(Color.BLACK);
 
-            if (selected){
-                g.fillRect(this.location.x + this.width / 2, this.location.y - PORT_SIZE, PORT_SIZE, PORT_SIZE);
-                g.fillRect(this.location.x - PORT_SIZE, this.location.y + this.height / 2 - PORT_SIZE / 2, PORT_SIZE, PORT_SIZE);
-                g.fillRect(this.location.x + this.width, this.location.y + this.height / 2 - PORT_SIZE / 2, PORT_SIZE, PORT_SIZE);
-                g.fillRect(this.location.x + this.width / 2, this.location.y + this.height, PORT_SIZE, PORT_SIZE);
-            }
+            PORTS.forEach( e-> {
+                e.draw(g);
+            });
         }
 
     }
@@ -136,6 +142,7 @@ public class UMLObject {
             this.id = Statics.UMLOBJECT.CLASS;
             this.name = "New Class";
             this.height = TOTLE_LENGTH * this.height;
+            addPorts();
         }
 
         @Override
@@ -158,6 +165,7 @@ public class UMLObject {
             this.name = "New Use Case";
             this.width *= 1.5;
             this.height *= 2;
+            addPorts();
         }
 
         @Override
@@ -191,7 +199,118 @@ public class UMLObject {
         }
     }
 
+    private class Port extends Shape{
+
+        private final int AREA;
+        private final UMLObject.Base CONNECTOR;
+
+        public Port(UMLObject.Base connector, int areaId){
+            this.id = areaId;
+            this.name = "Port";
+            this.width = PORT_SIZE;
+            this.height = PORT_SIZE;
+            this.AREA = areaId;
+            this.CONNECTOR = connector;
+        }
+
+        private void updateLocation(){
+
+            switch (AREA) {
+                case Statics.PORT.TOP:
+                    this.location.x = CONNECTOR.getLocation().x + CONNECTOR.getSize().x/2 - PORT_SIZE/2;
+                    this.location.y = CONNECTOR.getLocation().y - PORT_SIZE;
+                    break;
+
+                case Statics.PORT.LEFT:
+                    this.location.x = CONNECTOR.getLocation().x - PORT_SIZE;
+                    this.location.y = CONNECTOR.getLocation().y + CONNECTOR.getSize().y / 2 - PORT_SIZE / 2;
+                    break;
+
+                case Statics.PORT.RIGHT:
+                    this.location.x = CONNECTOR.getLocation().x + CONNECTOR.getSize().x;
+                    this.location.y = CONNECTOR.getLocation().y + CONNECTOR.getSize().y / 2 - PORT_SIZE / 2;
+                    break;
+
+                case Statics.PORT.BOTTOM:
+                    this.location.x = CONNECTOR.getLocation().x + CONNECTOR.getSize().x/2 - PORT_SIZE/2;
+                    this.location.y = CONNECTOR.getLocation().y + CONNECTOR.getSize().y;
+                    break;
+
+                default:
+                    System.out.println("Warning:\t Get unsupported port at UMLObject.updateLocation");
+                    break;
+            }
+
+        }
+
+        @Override
+        public Point getLocation() {
+
+            switch (AREA) {
+
+                case Statics.PORT.TOP:
+
+                    return new Point(
+                        CONNECTOR.getLocation().x + CONNECTOR.getSize().x/2,
+                        CONNECTOR.getLocation().y
+                    );
+
+                case Statics.PORT.LEFT:
+
+                    return new Point(
+                        CONNECTOR.getLocation().x,
+                        CONNECTOR.getLocation().y + CONNECTOR.getSize().y / 2
+                    );
+
+                case Statics.PORT.RIGHT:
+
+                    return new Point(
+                        CONNECTOR.getLocation().x + CONNECTOR.getSize().x,
+                        CONNECTOR.getLocation().y + CONNECTOR.getSize().y / 2
+                    );
+
+                case Statics.PORT.BOTTOM:
+
+                    return new Point(
+                        CONNECTOR.getLocation().x + CONNECTOR.getSize().x/2,
+                        CONNECTOR.getLocation().y + CONNECTOR.getSize().y
+                    );
+
+                default:
+                    System.out.println("Warning:\t Get unsupported port at UMLObject.getLocation");
+                    return new Point(0, 0);
+            }
+
+        }
+
+        @Override
+        public void draw(Graphics2D g) {
+
+            updateLocation();
+            
+            g.setColor(Color.BLACK);
+            if (CONNECTOR.getSelected()){
+                g.fillRect(this.location.x, this.location.y, this.width, this.height);
+            }
+
+        }
+
+    }
+
     abstract public class Line extends Base{
+
+        protected static final int ARROW_LENGTH = 20;
+        protected Base startPort;
+        protected Base endPort;
+        protected Point start;
+        protected Point end;
+        private boolean isSet = false;
+        protected int dx;
+        protected int dy;
+        protected double D;
+        protected double sqrt2;
+        protected double cos;
+        protected double sin;
 
         public Line(){
             this.height = 0;
@@ -200,9 +319,110 @@ public class UMLObject {
             this.name = "Line";
         }
 
-        protected Shape startShape;
-        protected int startPort;
-        protected Shape endShape;
-        protected int endPort;
+        public void setConnection(Base start, Base end){
+            this.startPort = start;
+            this.endPort = end;
+            setLocation(startPort.getLocation(), endPort.getLocation());
+        }
+
+        public void setLocation(Point start, Point end){
+
+            this.start = start;
+            this.end = end;
+
+        }
+
+        public void set() { isSet = true; }
+
+        @Override
+        public void draw(Graphics2D g) {
+
+            dx = this.end.x - this.start.x;
+            dy = this.end.y - this.start.y;
+
+
+            D = Math.sqrt(dx * dx + dy * dy);
+            sqrt2 = 1 / Math.sqrt(2);
+            cos = dx / D;
+            sin = dy / D;
+
+            if (isSet) {
+                setLocation(
+                    startPort.getLocation(),
+                    endPort.getLocation()
+                );
+            }
+            
+            g.setColor(Color.BLACK);
+            g.drawLine(
+                start.x,
+                start.y,
+                end.x - (int)(ARROW_LENGTH * cos * sqrt2),
+                end.y - (int)(ARROW_LENGTH * sin * sqrt2)
+            );
+
+        }
+    }
+
+    private class AssociationLine extends Line{
+
+        @Override
+        public void draw(Graphics2D g) {
+
+            super.draw(g);
+
+            int lineX = (int)(ARROW_LENGTH * cos);
+            int lineY = (int)(ARROW_LENGTH * sin);
+            g.drawLine(this.end.x - lineX, this.end.y - lineY, this.end.x, this.end.y);
+
+            int leftArrowX = (int)(ARROW_LENGTH * (- sqrt2 * cos - sqrt2 * sin));
+            int leftArrowY = (int)(ARROW_LENGTH * (- sqrt2 * sin + sqrt2 * cos));
+            g.drawLine(this.end.x, this.end.y, this.end.x + leftArrowX, this.end.y + leftArrowY);
+
+            int rightArrowX = (int)(ARROW_LENGTH * (- sqrt2 * cos + sqrt2 * sin));
+            int rightArrowY = (int)(ARROW_LENGTH * (- sqrt2 * sin - sqrt2 * cos));
+            g.drawLine(this.end.x, this.end.y, this.end.x + rightArrowX, this.end.y + rightArrowY);
+        
+        }
+    }
+
+    private class GeneralizationLine extends Line{
+
+        @Override
+        public void draw(Graphics2D g) {
+
+            super.draw(g);
+
+            int leftArrowX = (int)(ARROW_LENGTH * (- sqrt2 * cos - sqrt2 * sin));
+            int leftArrowY = (int)(ARROW_LENGTH * (- sqrt2 * sin + sqrt2 * cos));
+            g.drawLine(this.end.x, this.end.y, this.end.x + leftArrowX, this.end.y + leftArrowY);
+
+            int rightArrowX = (int)(ARROW_LENGTH * (- sqrt2 * cos + sqrt2 * sin));
+            int rightArrowY = (int)(ARROW_LENGTH * (- sqrt2 * sin - sqrt2 * cos));
+            g.drawLine(this.end.x, this.end.y, this.end.x + rightArrowX, this.end.y + rightArrowY);
+
+            g.drawLine(this.end.x + leftArrowX, this.end.y + leftArrowY,  this.end.x + rightArrowX, this.end.y + rightArrowY);
+        
+        }
+    }
+
+    private class CompositionLine extends Line{
+
+        @Override
+        public void draw(Graphics2D g) {
+
+            super.draw(g);
+
+            int leftTopArrowX = (int)(ARROW_LENGTH / 2 * (- sqrt2 * cos - sqrt2 * sin));
+            int leftTopArrowY = (int)(ARROW_LENGTH / 2 * (- sqrt2 * sin + sqrt2 * cos));
+            g.drawLine(this.end.x, this.end.y, this.end.x + leftTopArrowX, this.end.y + leftTopArrowY);
+
+            int rightTopArrowX = (int)(ARROW_LENGTH / 2 * (- sqrt2 * cos + sqrt2 * sin));
+            int rightTopArrowY = (int)(ARROW_LENGTH / 2 * (- sqrt2 * sin - sqrt2 * cos));
+            g.drawLine(this.end.x, this.end.y, this.end.x + rightTopArrowX, this.end.y + rightTopArrowY);
+
+            g.drawLine(this.end.x + leftTopArrowX, this.end.y + leftTopArrowY, this.end.x + leftTopArrowX + rightTopArrowX, this.end.y + leftTopArrowY + rightTopArrowY);
+            g.drawLine(this.end.x + rightTopArrowX, this.end.y + rightTopArrowY, this.end.x + leftTopArrowX + rightTopArrowX, this.end.y + leftTopArrowY + rightTopArrowY);
+        }
     }
 }

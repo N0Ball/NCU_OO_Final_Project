@@ -39,5 +39,12 @@ public class Statics {
         public static final int SHAPE = 0;
         public static final int LINE = 1;
     }
+
+    public static class PORT{
+        public static final int TOP = 0;
+        public static final int LEFT = 1;
+        public static final int RIGHT = 2;
+        public static final int BOTTOM = 3;
+    }
     
 }

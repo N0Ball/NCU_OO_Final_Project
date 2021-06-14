@@ -92,6 +92,7 @@ public class SelectMode extends Mode{
         @Override
         public void onPressed(Point pt) {
             prevPt = pt;
+            INTERACTOR.deselectAll();
             target = INTERACTOR.createObject();
             INTERACTOR.getObject(target).setLocation(pt.x, pt.y);
         }
