@@ -19,5 +19,24 @@ public class Statics {
         public static final int SAVE = 4;
         public static final int EXIT = 5;
     }
+
+    public static class UMLOBJECT{
+        public static final int CLASS = 0;
+        public static final int USE_CASE = 1;
+        public static final int ASSOCIATION_LINE = 2;
+        public static final int GENERALIZATION_LINE = 3;
+        public static final int COMPOSITION_LINE = 4;
+    }
+
+    public static class MODE{
+        public static final int OBJECT = 0;
+        public static final int LINE = 1;
+        public static final int SELECT = 2;
+    }
+
+    public static class UMLOBJECT_TYPE{
+        public static final int SHAPE = 0;
+        public static final int LINE = 1;
+    }
     
 }

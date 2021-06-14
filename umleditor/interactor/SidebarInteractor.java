@@ -1,10 +1,11 @@
 package umleditor.interactor;
 
 import umleditor.entity.Button;
+import umleditor.Statics;
 
 import java.util.ArrayList;
 
-public class SidebarInteractor {
+public class SidebarInteractor{
 
     private static final Button BUTTON = new Button();
     
@@ -23,6 +24,15 @@ public class SidebarInteractor {
             }else{
                 btn.deselect();
             }
+        }
+
+        switch (BtnID) {
+            case Statics.BUTTON.UML_CLASS:
+                
+                break;
+        
+            default:
+                break;
         }
     }
 }

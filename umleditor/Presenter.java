@@ -1,14 +1,18 @@
 package umleditor;
 
 import java.awt.Color;
+import java.awt.Point;
 import java.util.ArrayList;
 
 import umleditor.interactor.*;
+import umleditor.utils.Pair;
+import umleditor.utils.IDraw;
 
 public class Presenter {
 
     private static final SidebarInteractor SIDEBAR_INTERACTOR = new SidebarInteractor();
     private static final MenuBarInteractor MENUBAR_INTERACTOR = new MenuBarInteractor();
+    private static final CanvasInteractor CANVAS_INTERACTOR = new CanvasInteractor();
 
     public Presenter(){}
 
@@ -36,7 +40,11 @@ public class Presenter {
         }
 
         public void onPressed(int btnID){
+
             SIDEBAR_INTERACTOR.pressedBtn(btnID);
+
+            CANVAS_INTERACTOR.setMode(btnID);
+            
         }
 
     }
@@ -68,6 +76,30 @@ public class Presenter {
                 MENUBAR_INTERACTOR.getMenuItem(MenuItemId).getName() + 
                 " is clicked!"
             );
+        }
+
+    }
+
+    public class Canvas extends Base{
+
+        public void onPressed(Point pt){
+            CANVAS_INTERACTOR.onPressed(pt);
+        }
+
+        public void onDragged(Point pt){
+            CANVAS_INTERACTOR.onDragged(pt);
+        }
+
+        public void onReleased(Point pt){
+            CANVAS_INTERACTOR.onReleased(pt);
+        }
+
+        public ArrayList<IDraw> getObjects(){
+            ArrayList<IDraw> objects = new ArrayList<>();
+            CANVAS_INTERACTOR.getAllObjects().forEach( e -> {
+                objects.add(e.getDrawMethod());
+            });
+            return objects;
         }
 
     }
