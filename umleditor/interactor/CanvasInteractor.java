@@ -145,6 +145,25 @@ public class CanvasInteractor {
         }
     }
 
+    public void changeName(UMLObject.Base target, String newName){
+        target.setName(newName);
+    }
+
+    public boolean checkPopInputDialog(){
+
+        if (getSelectedObject().size() != 1){
+            System.out.println("Warning: Renaming failed with not one object is selected");
+            return false;   
+        }
+
+        if (getSelectedObject().get(0).getId() == Statics.UMLOBJECT.COMPOSITE){
+            System.out.println("Warning: Renaming failed with unrenamable object");
+            return false;
+        }
+
+        return true;
+    }
+
     public void groupSelectObject(){
         ArrayList<UMLObject.Base> selected = getSelectedObject();
 
@@ -221,7 +240,7 @@ public class CanvasInteractor {
         
     }
 
-    private ArrayList<UMLObject.Base> getSelectedObject(){
+    public ArrayList<UMLObject.Base> getSelectedObject(){
 
         ArrayList<UMLObject.Base> selected = new ArrayList<>();
 

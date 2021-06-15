@@ -2,9 +2,11 @@ package umleditor.view;
 
 import java.util.ArrayList;
 
+import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 
 import umleditor.Presenter;
 
@@ -51,6 +53,12 @@ public class MenuBar extends JMenuBar {
 
     public void onPressed(int MenuItemId){
         this.presenter.onPressed(MenuItemId);
+
+        if (this.presenter.popInputDialog()){
+            this.presenter.changeName(JOptionPane.showInputDialog(
+                new JFrame(), 
+                "Enter New Name"));
+        }
     }
 
 }

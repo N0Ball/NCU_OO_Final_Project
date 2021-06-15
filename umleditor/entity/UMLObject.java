@@ -95,11 +95,13 @@ public class UMLObject {
         }
         public void setGroupSelectBehavior() {selectBehavior = new GroupSelect();}
         public void setNormSelectBehavior() {selectBehavior = new NormalSelect();}
+        public void setCompositions(ArrayList<Base> comps) { compositions = comps; }
+        public void setName(String newName) { name = newName; }
+
         public void Move(int dx, int dy){
             location.x += dx;
             location.y += dy;
         }
-        public void setCompositions(ArrayList<Base> comps) { compositions = comps; }
 
         public void select() { selectBehavior.select(); }
         public void deselect() { selected = false; }

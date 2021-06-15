@@ -62,10 +62,11 @@ public class Presenter {
             notifyObserver();
             
         }
-
     }
 
     public class Menu extends Base{
+
+        private boolean isRename = false;
 
         public int getMenuNumbers() { 
             return MENUBAR_INTERACTOR.getAllMenu().size(); 
@@ -102,6 +103,10 @@ public class Presenter {
                 case Statics.MENUITEMS.UNGROUP:
                     CANVAS_INTERACTOR.unGroupSelectObject();
                     break;
+
+                case Statics.MENUITEMS.RENAME:
+                    isRename = true;
+                    break;
             
                 default:
                     System.out.println("Warning: Get Unsupported MenuItemId at Presenter.onPressed()");
@@ -111,6 +116,29 @@ public class Presenter {
             notifyObserver();
         }
 
+        
+        public boolean popInputDialog(){
+
+            if (isRename){
+
+                isRename = false;
+
+                return CANVAS_INTERACTOR.checkPopInputDialog();
+                
+            }
+
+            return false;
+        }
+
+        public void changeName(String newName){
+
+            if (newName == null){
+                return ;
+            }
+
+            CANVAS_INTERACTOR.changeName(CANVAS_INTERACTOR.getSelectedObject().get(0), newName);
+            notifyObserver();
+        }
     }
 
     public class Canvas extends Base{
