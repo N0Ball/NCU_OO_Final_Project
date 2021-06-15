@@ -2,6 +2,7 @@ package umleditor.interactor.modes;
 
 import java.awt.Point;
 
+import umleditor.Statics;
 import umleditor.entity.UMLObject;
 import umleditor.interactor.CanvasInteractor;
 
@@ -21,7 +22,7 @@ public class LineMode extends Mode{
     public void onPressed(Point pt) {
 
         startShape = INTERACTOR.getCollideObject(pt);
-        if (startShape != null){
+        if (startShape != null && startShape.getId() != Statics.UMLOBJECT.COMPOSITE){
             mouseBehavior = new SelectObject();
         }else{
             mouseBehavior = new SelectNull();
@@ -65,7 +66,7 @@ public class LineMode extends Mode{
         @Override
         public void onReleased(Point pt) {
             endPort = INTERACTOR.getCollideObject(pt);
-            if (endPort == null || endPort == startShape){
+            if (endPort == null || endPort == startShape || endPort.getId() == Statics.UMLOBJECT.COMPOSITE){
                 INTERACTOR.deleteObject(currentLine);
             }else{
                 endPort = endPort.getPort(INTERACTOR.getCollidePort(endPort, pt));

@@ -31,6 +31,10 @@ public class Presenter {
 
     public class Sidebar extends Base{
 
+        public Sidebar(){
+            onPressed(Statics.BUTTON.SELECT);
+        }
+
         public int getBtnNumbers() { return SIDEBAR_INTERACTOR.getAllBtn().size(); }
 
         public String getBtnName(int btnID){
@@ -85,10 +89,24 @@ public class Presenter {
 
         public void onPressed(int MenuItemId){
 
-            System.out.println(
-                MENUBAR_INTERACTOR.getMenuItem(MenuItemId).getName() + 
-                " is clicked!"
-            );
+            switch (MenuItemId) {
+                case Statics.MENUITEMS.EXIT:
+                case Statics.MENUITEMS.LOAD:
+                case Statics.MENUITEMS.SAVE:
+                    System.out.println("Log:\t Not Implemented Yet!");
+
+                case Statics.MENUITEMS.GROUP:
+                    CANVAS_INTERACTOR.groupSelectObject();
+                    break;
+
+                case Statics.MENUITEMS.UNGROUP:
+                    CANVAS_INTERACTOR.unGroupSelectObject();
+                    break;
+            
+                default:
+                    System.out.println("Warning: Get Unsupported MenuItemId at Presenter.onPressed()");
+                    break;
+            }
 
             notifyObserver();
         }

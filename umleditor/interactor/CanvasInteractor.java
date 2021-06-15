@@ -78,7 +78,7 @@ public class CanvasInteractor {
         switch (btnId) {
 
             case Statics.BUTTON.SELECT:
-                System.out.println("Log:\t Set Mode to <SELECT>");
+                System.out.println("Log:\t Set Mode to <SELECT>, Target to <SELECT_SQUARE>");
                 currentMode = new SelectMode(this);
                 currentMode.setTarget(Statics.UMLOBJECT.SELECT_SQUARE);
                 break;
@@ -114,7 +114,7 @@ public class CanvasInteractor {
                 break;
 
             default:
-                System.out.println("Warning:\t Selected a unsupported Mode at Canvasinteractor.setMode !");
+                System.out.println("Warning: Selected a unsupported Mode at Canvasinteractor.setMode !");
                 break;
         }
 
@@ -143,6 +143,49 @@ public class CanvasInteractor {
         } catch (Exception e) {
             System.out.println("Error:\t at CanvasInteractor.deleteObject " + e);
         }
+    }
+
+    public void groupSelectObject(){
+        ArrayList<UMLObject.Base> selected = getSelectedObject();
+
+        if (selected.size() <= 1){
+            System.out.println("Warning: Group Failed by selecting less then one Objects");
+            return;
+        }
+
+        currentMode.setTarget(Statics.UMLOBJECT.COMPOSITE);
+        deselectAll();
+        System.out.println("Log:\t Set Mode to <SELECT>, Target to <COMPOSITE>");
+
+        UMLObject.Base target = createObject();
+        target.setCompositions(selected);
+        setCorner(target, selected);
+
+        currentMode.setTarget(Statics.UMLOBJECT.SELECT_SQUARE);
+        System.out.println("Log:\t Set Mode to <SELECT>, Target to <SELECT_SQUARE>");
+    }
+
+    public void unGroupSelectObject(){
+
+        ArrayList<UMLObject.Base> selected = getSelectedObject();
+
+        if (selected.size() != 1){
+            System.out.println("Warning: unGroup Failed by selecting more then one Objects");
+            return ;
+        }
+
+        UMLObject.Base target = selected.get(0);
+        
+        if (target.getId() != Statics.UMLOBJECT.COMPOSITE){
+            System.out.println("Warning: unGroup Failed by selecting a none composite object");
+            return ;
+        }
+
+        target.getCompositions().forEach( e -> {
+            e.setNormSelectBehavior();
+        });
+
+        deleteObject(target);
     }
 
     public void onPressed(Point pt){
@@ -176,6 +219,56 @@ public class CanvasInteractor {
 
         return false;
         
+    }
+
+    private ArrayList<UMLObject.Base> getSelectedObject(){
+
+        ArrayList<UMLObject.Base> selected = new ArrayList<>();
+
+        for (UMLObject.Base object: getAllObjects()){
+            if (object.getSelected()){
+                selected.add(object);
+            }
+        }
+
+        return selected;
+    }
+
+    private void setCorner(UMLObject.Base comp, ArrayList<UMLObject.Base> targets){
+        
+        Point max = new Point(
+            targets.get(0).getLocation().x,
+            targets.get(0).getLocation().y
+        );
+        Point min = new Point(
+            max.x,
+            max.y
+        );
+
+        for (UMLObject.Base target: targets){
+
+            target.setGroupSelectBehavior();
+
+            int targetX = target.getLocation().x;
+            int targetY = target.getLocation().y;
+            Point size = target.getSize();
+
+            if (min.x > targetX){
+                min.x = targetX;
+            }
+            if (min.y > targetY){
+                min.y = targetY;
+            }
+            if (max.x < targetX + size.x){
+                max.x = targetX + size.x;
+            }
+            if (max.y < targetY + size.y){
+                max.y = targetY + size.y;
+            }
+        }
+
+        comp.setLocation(min.x, min.y);
+        comp.setSize(max.x - min.x, max.y - min.y);
     }
 
 }

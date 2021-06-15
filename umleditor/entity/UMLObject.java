@@ -40,6 +40,8 @@ public class UMLObject {
                 return new GeneralizationLine();
             case Statics.UMLOBJECT.COMPOSITION_LINE:
                 return new CompositionLine();
+            case Statics.UMLOBJECT.COMPOSITE:
+                return new Composite();
             default:
                 System.out.println("Warning: get null return at UMLObject.getObject");
                 return null;
@@ -66,8 +68,10 @@ public class UMLObject {
         protected int type;
         protected String name;
         protected boolean selected = false;
-        protected final ArrayList<UMLObject.Base> PORTS = new ArrayList<>();
+        protected final ArrayList<Base> PORTS = new ArrayList<>();
         protected final int PORT_SIZE = 10;
+        protected ArrayList<Base> compositions;
+        protected SelectBehavior selectBehavior = new NormalSelect();
 
         public int getType() { return type; }
         public Point getSize() { return new Point(width, height); }
@@ -77,6 +81,8 @@ public class UMLObject {
         public IDraw getDrawMethod() {
             return (Graphics2D g) -> draw(g);
         }
+        public ArrayList<Base> getCompositions() { return compositions; }
+        public int getId() { return id; }
         public boolean getSelected() { return selected; }
         
         public void setLocation(int x,int y){
@@ -87,12 +93,15 @@ public class UMLObject {
             width = x;
             height = y;
         }
+        public void setGroupSelectBehavior() {selectBehavior = new GroupSelect();}
+        public void setNormSelectBehavior() {selectBehavior = new NormalSelect();}
         public void Move(int dx, int dy){
             location.x += dx;
             location.y += dy;
         }
+        public void setCompositions(ArrayList<Base> comps) { compositions = comps; }
 
-        public void select() { selected = true; }
+        public void select() { selectBehavior.select(); }
         public void deselect() { selected = false; }
         
         protected void addPorts(){
@@ -103,6 +112,23 @@ public class UMLObject {
         }
 
         abstract public void draw(Graphics2D g);
+
+        
+        abstract private class SelectBehavior{
+            abstract public void select();
+        }
+    
+        protected class NormalSelect extends SelectBehavior{
+            @Override
+            public void select() {
+                selected = true;
+            }
+        }
+
+        protected class GroupSelect extends SelectBehavior{
+            @Override
+            public void select() {}
+        }
     }
 
     abstract public class Shape extends Base{
@@ -196,6 +222,33 @@ public class UMLObject {
             g.setColor(Color.BLACK);
             g.drawRect(this.location.x, this.location.y, this.width, this.height);
 
+        }
+    }
+
+    private class Composite extends Shape{
+
+        public Composite(){
+            this.id = Statics.UMLOBJECT.COMPOSITE;
+        }
+
+        @Override
+        public void Move(int dx, int dy) {
+
+            compositions.forEach( e -> { e.Move(dx, dy);});
+
+            super.Move(dx, dy);
+        }
+
+        @Override
+        public void draw(Graphics2D g) {
+            
+            if (selected){
+                g.setColor(Color.RED);
+            }else{
+                g.setColor(Color.LIGHT_GRAY);
+            }
+
+            g.drawRect(location.x, location.y, getSize().x, getSize().y);
         }
     }
 
