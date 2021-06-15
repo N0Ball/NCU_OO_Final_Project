@@ -15,6 +15,8 @@ public class MainFrame extends JFrame implements IObserver{
 
     private final static int WIDTH = 1000;
     private final static int HEIGHT = 600;
+    private final static int INITX = 250;
+    private final static int INITY = 1000;
     private final static String TITLE = "UML Editor";
     private final Presenter presenter;
     
@@ -29,6 +31,7 @@ public class MainFrame extends JFrame implements IObserver{
         this.setTitle(TITLE);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(WIDTH, HEIGHT);
+        this.setLocation(INITX, INITY);
         
         // Add Component to Frame
         
